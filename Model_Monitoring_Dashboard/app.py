@@ -22,8 +22,8 @@ st.set_page_config(  # Alternate names: setup_page, page, layout
     page_icon=None,  # String, anything supported by st.image, or None.
 )
 
-image = Image.open('../images/tvs-logo.png')
-
+# image = Image.open('../images/tvs-logo.png')
+image = Image.open("https://github.com/jkkn31/KrishnakanthNaik/blob/main/Model_Monitoring_Dashboard/images/tvs-logo.png")
 st.sidebar.image(image, use_column_width=False)
 st.sidebar.title('LCE Monitoring Dashboard')
 
