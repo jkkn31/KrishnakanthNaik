@@ -22,7 +22,7 @@ st.set_page_config(  # Alternate names: setup_page, page, layout
     page_icon=None,  # String, anything supported by st.image, or None.
 )
 
-image = Image.open('images/tvs-logo.png')
+image = Image.open('../images/tvs-logo.png')
 
 st.sidebar.image(image, use_column_width=False)
 st.sidebar.title('LCE Monitoring Dashboard')
@@ -61,20 +61,20 @@ if task == 'Data Monitoring':
 
     task = st.sidebar.selectbox('Select', ['Month till date', 'Past 30 days'])
 
-    x1 = pd.read_csv("data/hw_m1.csv")
+    x1 = pd.read_csv("../data/hw_m1.csv")
     x1['Model'] = 'Model_1'
-    x2 = pd.read_csv("data/hw_m2.csv")
+    x2 = pd.read_csv("../data/hw_m2.csv")
     x2['Model'] = 'Model_2'
 
-    x3 = pd.read_csv("data/hw_m3.csv")
+    x3 = pd.read_csv("../data/hw_m3.csv")
     x3['Model'] = 'Model_3'
 
-    x4 = pd.read_csv("data/hw_m1.csv")
+    x4 = pd.read_csv("../data/hw_m1.csv")
     x4['Model'] = 'Model_4'
 
     temp_df = pd.concat([x1, x2, x3, x4])
 
-    # temp_df = pd.read_csv("data/hw_dist.csv")
+    # temp_df = pd.read_csv("../data/hw_dist.csv")
     temp_df.columns = ['Scored_at', "Hot %", "Warm %", "Cold %", "Model"]
     temp_df.Scored_at = pd.to_datetime(temp_df.Scored_at)
 
@@ -126,10 +126,10 @@ elif task == 'Model Monitoring':
     end_date = st.sidebar.date_input('End date', today)
 
 
-    m1 = pd.read_csv("data/model_1_mm.csv")
-    m2 = pd.read_csv("data/model_2_mm.csv")
-    m3 = pd.read_csv("data/model_3_mm.csv")
-    m4 = pd.read_csv("data/model_1_mm.csv")
+    m1 = pd.read_csv("../data/model_1_mm.csv")
+    m2 = pd.read_csv("../data/model_2_mm.csv")
+    m3 = pd.read_csv("../data/model_3_mm.csv")
+    m4 = pd.read_csv("../data/model_1_mm.csv")
     m1['Model'] = 'Model_1'
     m2['Model'] = 'Model_2'
     m3['Model'] = 'Model_3'
@@ -172,7 +172,7 @@ elif task == 'System Monitoring':
     st.subheader('Inference - Pipelines')
 
     # Job API Table
-    inference_pipeline = pd.read_csv("data/job_api_status.csv")
+    inference_pipeline = pd.read_csv("../data/job_api_status.csv")
     inference_pipeline.columns = ['run_name', 'run_date', 'run_state', 'run_trigger']
     inference_pipeline = inference_pipeline[inference_pipeline.run_trigger=='SCHEDULED']
     inference_pipeline.run_date = pd.to_datetime(inference_pipeline.run_date).dt.date
