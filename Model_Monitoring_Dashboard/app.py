@@ -43,6 +43,7 @@ from datetime import datetime
 mtd = datetime.today().replace(day=1)
 today = datetime.now()
 previous_day = datetime.now() + timedelta(days=-7)
+
 past_90 = datetime.now() + timedelta(days=-30)
 
 
@@ -75,12 +76,13 @@ if task == 'Data Monitoring':
     # temp_df = pd.read_csv("Model_Monitoring_Dashboard/data/hw_dist.csv")
     temp_df.columns = ['Scored_at', "Hot %", "Warm %", "Cold %", "Model"]
     temp_df.Scored_at = pd.to_datetime(temp_df.Scored_at)
-    st.title(f'Shape of the dataset - {temp_df.shape[0]}')
-    st.title(f'Timeperiod ---> {temp_df.Scored_at.min()} - {temp_df.Scored_at.max()}')
 
     if task == 'Past 30 days':
-        today = datetime.now()
-        previous_day = datetime.now() + timedelta(days=-30)
+#         today = datetime.now()
+#         previous_day = datetime.now() + timedelta(days=-30)
+        
+        today = temp_df.Scored_at.min()
+        previous_day = temp_df.Scored_at.max()
         df = temp_df[(temp_df.Scored_at >= pd.to_datetime(previous_day)) & (temp_df.Scored_at <= pd.to_datetime(today))].copy()
 
         col1, col2 = st.columns(2)
@@ -100,8 +102,11 @@ if task == 'Data Monitoring':
             st.plotly_chart(chart, use_container_width=True)
 
     elif task == 'Month till date':
-        today = datetime.now()
-        previous_day = datetime.today().replace(day=1)
+#         today = datetime.now()
+#         previous_day = datetime.today().replace(day=1)
+
+        today = temp_df.Scored_at.min()
+        previous_day = temp_df.Scored_at.max()
         df = temp_df[(temp_df.Scored_at >= pd.to_datetime(previous_day)) & (temp_df.Scored_at <= pd.to_datetime(today))].copy()
 
         col1, col2 = st.columns(2)
@@ -122,8 +127,6 @@ if task == 'Data Monitoring':
 
 
 elif task == 'Model Monitoring':
-    start_date = st.sidebar.date_input('Start date', previous_day)
-    end_date = st.sidebar.date_input('End date', today)
     m1 = pd.read_csv("Model_Monitoring_Dashboard/data/model_1_mm.csv")
     m2 = pd.read_csv("Model_Monitoring_Dashboard/data/model_2_mm.csv")
     m3 = pd.read_csv("Model_Monitoring_Dashboard/data/model_3_mm.csv")
@@ -137,10 +140,13 @@ elif task == 'Model Monitoring':
     temp_df.columns = ['computed_on', 'F2 Score', 'KS Decile', 'Conversion Abnormality Detected', 'Recall Score', 'Model']
     temp_df.computed_on = pd.to_datetime(temp_df.computed_on).dt.date
 
-    st.title(f'Shape of the dataset - {temp_df.shape[0]}')
-    st.title(f'Timeperiod ---> {temp_df.computed_on.min()} - {temp_df.computed_on.max()}')
 
-
+    previous_day = temp_df.Scored_at.min()
+    today = temp_df.Scored_at.max()
+    
+    start_date = st.sidebar.date_input('Start date', previous_day)
+    end_date = st.sidebar.date_input('End date', today)
+        
     temp_df = temp_df[(temp_df.computed_on >= pd.to_datetime(start_date)) & (temp_df.computed_on <= pd.to_datetime(end_date))].copy()
 
     fig_f2_score = px.line(temp_df, x="computed_on", y="F2 Score", color='Model')
@@ -169,9 +175,9 @@ elif task == 'Model Monitoring':
 
 
 elif task == 'System Monitoring':
-    last_30 = datetime.now() + timedelta(days=-30)
-    start_date = st.sidebar.date_input('Start date', last_30)
-    end_date = st.sidebar.date_input('End date', today)
+#     last_30 = datetime.now() + timedelta(days=-30)
+#     start_date = st.sidebar.date_input('Start date', last_30)
+#     end_date = st.sidebar.date_input('End date', today)
     st.subheader('Inference - Pipelines')
 
     # Job API Table
@@ -182,6 +188,12 @@ elif task == 'System Monitoring':
     col1, col2 = st.columns(2)
     col3, col4 = st.columns(2)
     col5, col6 = st.columns(2)
+    
+    previous_day = inference_pipeline.run_date.min()
+    today = inference_pipeline.run_date.max()
+    
+    start_date = st.sidebar.date_input('Start date', previous_day)
+    end_date = st.sidebar.date_input('End date', today)
 
     def common_chart_def(df, start_date, end_date, model_name):
         temp_df = inference_pipeline[((inference_pipeline.run_date) >= pd.to_datetime(start_date)) & (
