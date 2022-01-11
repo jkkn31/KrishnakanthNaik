@@ -137,8 +137,8 @@ elif task == 'Model Monitoring':
     temp_df.columns = ['computed_on', 'F2 Score', 'KS Decile', 'Conversion Abnormality Detected', 'Recall Score', 'Model']
     temp_df.computed_on = pd.to_datetime(temp_df.computed_on).dt.date
 
-    st.title(f'Shape of the dataset - {computed_on.shape[0]}')
-    st.title(f'Timeperiod ---> {computed_on.Scored_at.min()} - {computed_on.Scored_at.max()}')
+    st.title(f'Shape of the dataset - {temp_df.shape[0]}')
+    st.title(f'Timeperiod ---> {temp_df.computed_on.min()} - {temp_df.computed_on.max()}')
 
 
     temp_df = temp_df[(temp_df.computed_on >= pd.to_datetime(start_date)) & (temp_df.computed_on <= pd.to_datetime(end_date))].copy()
