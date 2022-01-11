@@ -77,12 +77,13 @@ if task == 'Data Monitoring':
     temp_df.columns = ['Scored_at', "Hot %", "Warm %", "Cold %", "Model"]
     temp_df.Scored_at = pd.to_datetime(temp_df.Scored_at)
 
+    today = temp_df.Scored_at.max()
+    previous_day = temp_df.Scored_at.min()
+    
     if task == 'Past 30 days':
 #         today = datetime.now()
 #         previous_day = datetime.now() + timedelta(days=-30)
         
-        today = temp_df.Scored_at.min()
-        previous_day = temp_df.Scored_at.max()
         df = temp_df[(temp_df.Scored_at >= pd.to_datetime(previous_day)) & (temp_df.Scored_at <= pd.to_datetime(today))].copy()
 
         col1, col2 = st.columns(2)
@@ -105,8 +106,6 @@ if task == 'Data Monitoring':
 #         today = datetime.now()
 #         previous_day = datetime.today().replace(day=1)
 
-        today = temp_df.Scored_at.min()
-        previous_day = temp_df.Scored_at.max()
         df = temp_df[(temp_df.Scored_at >= pd.to_datetime(previous_day)) & (temp_df.Scored_at <= pd.to_datetime(today))].copy()
 
         col1, col2 = st.columns(2)
