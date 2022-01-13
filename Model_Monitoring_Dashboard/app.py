@@ -140,8 +140,8 @@ elif task == 'Model Monitoring':
     temp_df.computed_on = pd.to_datetime(temp_df.computed_on).dt.date
 
 
-    previous_day = temp_df.Scored_at.min()
-    today = temp_df.Scored_at.max()
+    previous_day = temp_df.computed_on.min()
+    today = temp_df.computed_on.max()
     
     start_date = st.sidebar.date_input('Start date', previous_day)
     end_date = st.sidebar.date_input('End date', today)
