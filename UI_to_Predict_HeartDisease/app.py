@@ -2,28 +2,38 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 import base64
+import pickle
+import sklearn
 import getpass
 from PIL import Image
 
-# pd.set_option('max_columns', None)
-# pd.set_option('max_rows', None)
 
-st.set_page_config(  # Alternate names: setup_page, page, layout
-    layout="wide",  # Can be "centered" or "wide". In the future also "dashboard", etc.
-    initial_sidebar_state="auto",  # Can be "auto", "expanded", "collapsed"
+# all other imports
+import os
+# from streamlit_elements import Elements
+
+###############################################################################
+
+# The code below is for the layout of the page
+if "widen" not in st.session_state:
+    layout = "centered"
+else:
+    layout = "wide" if st.session_state.widen else "centered"
+
+st.set_page_config(
+    layout=layout,
     page_title='Heart Disease Prediction App',  # String or None. Strings get appended with "• Streamlit".
-    page_icon= "images/hs.webp",  # String, anything supported by st.image, or None.
+    page_icon= "images/hi.png",  # String, anything supported by st.image, or None.
 )
 
-# st.sidebar.image(image, use_column_width=False)
+###############################################################################
+# Lets Prepare some data
+data = {'18-24':0, '25-29':1,'30-34':2,'35-39':3,'40-44':4,'45-49':5,'50-54':6,'55-59':7,'60-64':8,'65-69':9,'70-74':10,'75-79':11,'80 or older':12}
+age_df = pd.DataFrame({'AgeCategory' : data.keys() , 'AgeValue' : data.values() })
 
-# st.sidebar.image("images/hs.webp", caption="Your heart seems to be okay! - Dr. Logistic Regression")
 
-# st.set_page_config(
-#         page_title="Heart Disease Prediction App",
-#         # page_icon="images/heart-fav.png"
-#     )
-
+###############################################################################
+# Define few functions
 
 def add_bg_from_local(image_file):
     with open(image_file, "rb") as image_file:
@@ -40,51 +50,185 @@ def add_bg_from_local(image_file):
     unsafe_allow_html=True
     )
 
-add_bg_from_local('images/bh.jpg')
+def featuresTransformations_to_df(agecat_key, bmi_key, gender, race, smoking, alcohol, health_key, diabetic, asthma, stroke, skincancer, kidneydisease) -> pd.DataFrame:
+    age_dict = {'18-24':0, '25-29':1,'30-34':2,'35-39':3,'40-44':4,'45-49':5,'50-54':6,'55-59':7,'60-64':8,'65-69':9,'70-74':10,'75-79':11,'80 or older':12}
+    health_dict = {'Poor':0,'Fair':1,'Good':2,'Very good':3,'Excellent':4}
+    bmi_dict = {'UnderWeight':0,'NormalWeight':1,'OverWeight':2,'Obesity Class I':3,'Obesity Class II':4, 'Obesity Class III':5}
+    dict = {"Yes": 1, "No": 0}
+
+    agecat = age_dict.get(agecat_key)
+    health = health_dict.get(health_key)
+    bmi = bmi_dict.get(bmi_key)
+    diabetic = 1 if diabetic == "Yes" else 0
+    gender = 1 if gender == "Male" else 0
+    race = 1 if race == "White" else 0
+
+    stroke = 1 if stroke == "Yes" else 0
+    skincancer = 1 if skincancer == "Yes" else 0
+    kidneydisease = 1 if kidneydisease == "Yes" else 0
+    asthma = 1 if asthma == "Yes" else 0
+    smoking = 1 if smoking == "Yes" else 0
+    alcohol = 1 if alcohol == "Yes" else 0
+
+
+    df = pd.DataFrame({
+        "AgeCategory": [agecat],
+        "Stroke": [stroke],
+        "Diabetic_Yes": [diabetic],
+        "KidneyDisease": [kidneydisease],
+        "Smoking": [smoking],
+        "SkinCancer": [skincancer],
+        "Is_Male": [gender],
+        "BMI": [bmi],
+        "Asthma": [asthma],
+        "Race_White": [race],
+        "AlcoholDrinking": [alcohol],
+        "GenHealth": [health]
+    })
+
+    return df
+
+###############################################################################
 
 st.title("Heart Disease Prediction")
 st.subheader("Are you wondering about the condition of your heart? "
              "This app will help you to diagnose it!")
 
-col1, col2 = st.columns([1, 3])
+
+add_bg_from_local('images/bh.jpg')
+
+st.subheader("General Information:")
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    gender = st.selectbox(
+    "Gender",
+    options = ["Male", "Female"],
+    help="Choose your Gender!",
+    )
+
+with col2:
+    agecat_key = st.selectbox(
+        "Age Group",
+        options=age_df.AgeCategory.unique().tolist(),
+        help="Choose a age group you belong to!",
+    )
+
+with col3:
+    race = st.selectbox(
+        "Race",
+        options= ['White', 'Black', 'Asian', 'American Indian/Alaskan Native', 'Hispanic',  'Other'],
+        help="Choose your Race!",
+    )
+
+    # ['AgeCategory', 'Stroke', 'Diabetic_Yes', 'KidneyDisease', 'Smoking', 'SkinCancer', 'is_Male', 'BMI', 'Asthma',
+     # 'Race_White', 'AlcoholDrinking', 'GenHealth']
+
+st.subheader("Habits:")
+col4, col5 = st.columns(2)
+
+with col4:
+    smoking = st.selectbox(
+        "Do you Smoke?",
+        options=["Yes", "No"],
+        help="Whether you smoke or Not!",
+    )
+
+with col5:
+    alcohol = st.selectbox(
+        "Do you Drink Alcohol?",
+        options=["Yes", "No"],
+        help="Are you Alcoholic or Not!",
+    )
+
+st.subheader("Health Information:")
+col6, col7, col8, col12 = st.columns(4)
+
+with col7:
+    health_key = st.selectbox(
+        "How is your Health?",
+        options=[ 'Poor', 'Fair', 'Good', 'Very good', 'Excellent'],
+        help="Be Frank about your health condition!",
+    )
+
+with col12:
+    asthma = st.selectbox(
+        "Ever had  Asthma?",
+        options= ["Yes", "No"],
+        help="(Ever told) (you had) Asthma?",
+    )
+with col8:
+    diabetic = st.selectbox(
+        "Are you Diabetic?",
+        options= ['Yes', 'No', 'No, borderline diabetes', 'Yes (during pregnancy)'],
+        help = "Ever had diabetes?",
+    )
+with col6:
+    bmi_key = st.selectbox(
+        "BMI",
+        options= ['UnderWeight', 'NormalWeight', 'OverWeight', 'Obesity Class I', "Obesity Class II", "Obesity Class III"],
+        help = "Please choose respective BMI category!",
+    )
+
+st.subheader("Critical Health Issues:")
+col8, col9, col10 = st.columns(3)
+
+with col8:
+    stroke = st.selectbox(
+        "Ever had a Heart Stroke in the Past?",
+        options=["Yes", "No"],
+        help="Ever had a stroke in the past atleast once?",
+    )
+
+with col9:
+    skincancer = st.selectbox(
+        "Ever Diagnosed with Skin Caner?",
+        options=["Yes", "No"],
+        help="(Ever told) Diagnosed with Skin Cancer?",
+    )
+with col10:
+    kidneydisease = st.selectbox(
+        "Ever Diagnosed with Kidney Disease?",
+        options=["Yes", "No"],
+        help="Not including Kidney Stones, Bladder Infection or Incontinence, were you ever told you had Kidney Disease?",
+    )
+
+st.write("")
+col8, col9, col10 = st.columns(3)
+
+with col8:
+    predict = st.button("Predict!")
+                # with col2:
+MODEL_PATH = "model/rf_model_to_predict_heartDisease"
+log_model = pickle.load(open(MODEL_PATH, "rb"))
+
+if predict:
+    # st.expander("Hey Clicked on predict buttion")
+    df = featuresTransformations_to_df(agecat_key, bmi_key, gender, race, smoking, alcohol, health_key, diabetic, asthma, stroke, skincancer, kidneydisease)
+    prediction = log_model.predict(df)
+    prediction_prob = log_model.predict_proba(df)
+
+    # st.write(f"Model Prediction {prediction} and its probability {prediction_prob}")
+
+    if prediction ==0:
+        st.write(f"Dr. RandomForest says that you are LESS prone to Heart Disease with a probability of {(100*prediction_prob[0][1]).round(1)}%.")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("![Good](https://media.giphy.com/media/trhFX3qdAPF3GjYPMt/giphy.gif)")
+
+    else:
+        st.write(f"Dr. RandomForest says that you are Highly prone to Heart Disease with a probability of {(100*prediction_prob[0][1]).round(1)}%.")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown("![Bad](https://media4.giphy.com/media/zaMldSPOkLNu9iYgZ6/giphy.gif?cid=29caca75yzsr24jwjoy2f8ze5azrdqka0mlt7untywajjgme&rid=giphy.gif&ct=g)")
+            # Big gif
+            # st.markdown("![Alt Text](https://media3.giphy.com/media/2UIeG5bGcwKK3nwAP0/giphy.gif?cid=29caca75i6x91f7yc0c12ghfj8fsm9eic6g4wo1fhs8odx32&rid=giphy.gif&ct=g)")
 
 
-st.sidebar.title('Diagonose Heart Disease')
-
-race = st.sidebar.selectbox("Race", options=["White", "Asian", "Others"])
-# sex = st.sidebar.selectbox("Sex", options=(sex for sex in heart.Sex.unique()))
-# age_cat = st.sidebar.selectbox("Age category",
-#                                options=(age_cat for age_cat in heart.AgeCategory.unique()))
-# bmi_cat = st.sidebar.selectbox("BMI category",
-#                                options=(bmi_cat for bmi_cat in heart.BMICategory.unique()))
-# sleep_time = st.sidebar.number_input("How many hours on average do you sleep?", 0, 24, 7)
-# gen_health = st.sidebar.selectbox("How can you define your general health?",
-#                                   options=(gen_health for gen_health in heart.GenHealth.unique()))
-# phys_health = st.sidebar.number_input("For how many days during the past 30 days was"
-#                                       " your physical health not good?", 0, 30, 0)
-# ment_health = st.sidebar.number_input("For how many days during the past 30 days was"
-#                                               " your mental health not good?", 0, 30, 0)
+st.caption(
+    "Made with 💓, by Krishnakanth Naik"
+)
 
 
 
-# Function load the best ML model
-@st.experimental_singleton
-def load_model(model_file):
-  with open(model_file, 'rb') as f_in:
-      model = pickle.load(f_in)
-  return model
 
-# Load the model
-# model_file = 'ExtraTreesClassifier_maxdepth50_nestimators200.bin'
-# model = load_model(model_file)
-
-y_pred = model.predict_proba(df_amino_acids_percent)[0, 1]
-active = y_pred >= 0.5
-
-
-
-st.sidebar.image("images/stroke.png", caption="Your heart seems to be okay! - Dr. Logistic Regression")
-
-# cd  C:\Users\jkkn7\PycharmProjects\KrishnakanthNaik\UI_to_Predict_HeartDisease
-
-# streamlit run app.py
