@@ -45,7 +45,7 @@ image_file = path+'/images/bh.jpg'
 # add_bg_from_local(bgimage_link)
 
 # Model Path
-MODEL_PATH =  "model/rf_model_to_predict_heartDisease"
+MODEL_PATH = path+"/model/rf_model_to_predict_heartDisease"
 
 def add_bg_from_local(image_file):
     with open(image_file, "rb") as image_file:
