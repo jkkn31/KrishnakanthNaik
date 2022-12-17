@@ -35,6 +35,18 @@ age_df = pd.DataFrame({'AgeCategory' : data.keys() , 'AgeValue' : data.values() 
 ###############################################################################
 # Define few functions
 
+
+# bgimage_link = "https://drive.google.com/file/d/1qpO3e_leNXN30DVMkTRo7-LjyxA2lvzY/view?usp=share_link"
+# Image from Local
+path = os.path.dirname(__file__)
+image_file = path+'/images/bh.jpg'
+
+# Image from link
+# add_bg_from_local(bgimage_link)
+
+# Model Path
+MODEL_PATH =  path+"model/rf_model_to_predict_heartDisease"
+
 def add_bg_from_local(image_file):
     with open(image_file, "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read())
@@ -89,13 +101,13 @@ def featuresTransformations_to_df(agecat_key, bmi_key, gender, race, smoking, al
     return df
 
 ###############################################################################
+add_bg_from_local(image_file)
 
 st.title("Heart Disease Prediction")
 st.subheader("Are you wondering about the condition of your heart? "
              "This app will help you to diagnose it!")
 
 
-add_bg_from_local('images/bh.jpg')
 
 st.subheader("General Information:")
 col1, col2, col3 = st.columns(3)
@@ -199,7 +211,9 @@ col8, col9, col10 = st.columns(3)
 with col8:
     predict = st.button("Predict!")
                 # with col2:
-MODEL_PATH = "model/rf_model_to_predict_heartDisease"
+
+
+
 log_model = pickle.load(open(MODEL_PATH, "rb"))
 
 if predict:
