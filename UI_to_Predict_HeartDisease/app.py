@@ -20,11 +20,14 @@ if "widen" not in st.session_state:
 else:
     layout = "wide" if st.session_state.widen else "centered"
 
+path = os.path.dirname(__file__)
+
 st.set_page_config(
     layout=layout,
     page_title='Heart Disease Prediction App',  # String or None. Strings get appended with "• Streamlit".
-    page_icon= "images/hi.png",  # String, anything supported by st.image, or None.
+    # page_icon= path+"/images/hi.png",  # String, anything supported by st.image, or None.
 
+    page_icon= "💖"
 )
 
 ###############################################################################
