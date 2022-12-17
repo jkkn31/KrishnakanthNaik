@@ -24,6 +24,7 @@ st.set_page_config(
     layout=layout,
     page_title='Heart Disease Prediction App',  # String or None. Strings get appended with "• Streamlit".
     page_icon= "images/hi.png",  # String, anything supported by st.image, or None.
+
 )
 
 ###############################################################################
@@ -101,11 +102,16 @@ def featuresTransformations_to_df(agecat_key, bmi_key, gender, race, smoking, al
     return df
 
 ###############################################################################
+
+
+
 add_bg_from_local(image_file)
 
-st.title("Heart Disease Prediction")
-st.subheader("Are you wondering about the condition of your heart? "
+st.title("Heart Disease Prediction App")
+st.markdown("Are you worried about the condition of your heart? "
              "This app will help you to diagnose it!")
+
+# st.markdown("This App will help you to Diagnose it!")
 
 
 
@@ -205,14 +211,13 @@ with col10:
         help="Not including Kidney Stones, Bladder Infection or Incontinence, were you ever told you had Kidney Disease?",
     )
 
-st.write("")
+st.title("")
 col8, col9, col10 = st.columns(3)
 
 with col8:
-    predict = st.button("Predict!")
+    predict = st.button("Predict my Heart Condition!")
                 # with col2:
-
-
+# st.title("")
 
 log_model = pickle.load(open(MODEL_PATH, "rb"))
 
@@ -221,26 +226,27 @@ if predict:
     df = featuresTransformations_to_df(agecat_key, bmi_key, gender, race, smoking, alcohol, health_key, diabetic, asthma, stroke, skincancer, kidneydisease)
     prediction = log_model.predict(df)
     prediction_prob = log_model.predict_proba(df)
-
+    likelihood = (100*(prediction_prob[0][1]/prediction_prob[0][0]))
     # st.write(f"Model Prediction {prediction} and its probability {prediction_prob}")
 
     if prediction ==0:
-        st.subheader(f"Dr. RandomForest says that you are LESS prone to Heart Disease with a probability of {(100*prediction_prob[0][1]).round(1)}%.")
+        st.subheader(f"You are Healthy💕! - Dr. RandomForest.")
+        st.write(f"You are LESS prone to Heart Disease as the probability of Heart Disease in you is just {100*prediction_prob[0][1].round(1)}%.")
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("![Good](https://media.giphy.com/media/trhFX3qdAPF3GjYPMt/giphy.gif)")
 
     else:
-        st.subheader(f"Dr. RandomForest says that you are Highly prone to Heart Disease with a probability of {(100*prediction_prob[0][1]).round(1)}%.")
+        st.subheader("You are not Healthy 😐, better go for a checkup - Dr. RandomForest.")
+        st.write(f"You are Highly prone to Heart Disease as the probability of Heart Disease in you is {100*prediction_prob[0][1].round(1)}% 😲.")
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("![Bad](https://media4.giphy.com/media/zaMldSPOkLNu9iYgZ6/giphy.gif?cid=29caca75yzsr24jwjoy2f8ze5azrdqka0mlt7untywajjgme&rid=giphy.gif&ct=g)")
-            # Big gif
-            # st.markdown("![Alt Text](https://media3.giphy.com/media/2UIeG5bGcwKK3nwAP0/giphy.gif?cid=29caca75i6x91f7yc0c12ghfj8fsm9eic6g4wo1fhs8odx32&rid=giphy.gif&ct=g)")
 
 
+st.title("")
 st.caption(
-    "Made with 💓, by Krishnakanth Naik"
+    "Made with 💓, by Krishnakanth Naik & Bhargavi Sikhakolli"
 )
 
 
