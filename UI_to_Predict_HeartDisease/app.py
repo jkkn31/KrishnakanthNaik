@@ -225,13 +225,13 @@ if predict:
     # st.write(f"Model Prediction {prediction} and its probability {prediction_prob}")
 
     if prediction ==0:
-        st.write(f"Dr. RandomForest says that you are LESS prone to Heart Disease with a probability of {(100*prediction_prob[0][1]).round(1)}%.")
+        st.subheader(f"Dr. RandomForest says that you are LESS prone to Heart Disease with a probability of {(100*prediction_prob[0][1]).round(1)}%.")
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("![Good](https://media.giphy.com/media/trhFX3qdAPF3GjYPMt/giphy.gif)")
 
     else:
-        st.write(f"Dr. RandomForest says that you are Highly prone to Heart Disease with a probability of {(100*prediction_prob[0][1]).round(1)}%.")
+        st.subheader(f"Dr. RandomForest says that you are Highly prone to Heart Disease with a probability of {(100*prediction_prob[0][1]).round(1)}%.")
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("![Bad](https://media4.giphy.com/media/zaMldSPOkLNu9iYgZ6/giphy.gif?cid=29caca75yzsr24jwjoy2f8ze5azrdqka0mlt7untywajjgme&rid=giphy.gif&ct=g)")
